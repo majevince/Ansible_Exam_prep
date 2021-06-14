@@ -1,0 +1,24 @@
+---
+- hosts: proxy
+  become: true
+  tasks:
+    - name: "set /etc/motd fro proxy server"
+      copy:
+        content: "welcome to HAProxy server"
+        dest: /etc/motd
+
+- hosts: webserver
+  become: true
+  tasks:
+    - name: "set /etc/motd fro proxy server"
+      copy:
+        content: "welcome to web server"
+        dest: /etc/motd
+
+- hosts: database
+  become: true
+  tasks:
+    - name: "set /etc/motd fro proxy server"
+      copy:
+        content: "welcome to databese server"
+        dest: /etc/motd

@@ -1,0 +1,17 @@
+---
+- name: create user on webserver
+  hosts: webserver
+  become: true
+  vars_files:
+          secret.yml
+          vars/user_list.yml
+  tasks:
+    - name: create users account on webserver 
+      user:
+        name: "{{ item.username }}"
+        password: " {{ user_password }}"
+        shell: /bin/bash
+        state: present
+      when: item.uid is match("1*")
+      with_items:
+        - "(( users ))"
