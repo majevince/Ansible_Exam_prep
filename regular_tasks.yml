@@ -1,0 +1,25 @@
+- hosts: all
+  become: true
+  tasks:
+    - Name: "install cronie packages"
+      dnf:
+        name: cronie
+        state: present
+
+
+
+
+    - name: "start crond services"
+      systemd:
+        name: crond
+        state: started
+        enabled: yes
+
+
+    - name: " configure crond service"
+      cron:
+        name: "run date append time"
+        user: root
+        hour: "1"
+        job: "date >> /var/log/time.log "
+        cron_file: ansible_date_rhce8
