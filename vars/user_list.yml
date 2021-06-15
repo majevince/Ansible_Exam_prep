@@ -1,4 +1,5 @@
-users
+---
+users:
   - username: alice
     uid: 1201
   - username: vincent

@@ -1,10 +1,10 @@
 ---
 - name: create user on webserver
-  hosts: webserver
+  hosts: all
   become: true
   vars_files:
-          secret.yml
-          vars/user_list.yml
+    -  secret.yml
+    -  vars/user_list.yml
   tasks:
     - name: create users account on webserver 
       user:
@@ -14,4 +14,38 @@
         state: present
       when: item.uid is match("1*")
       with_items:
-        - "(( users ))"
+        - "{{ users }}"
+    - name: create users account on webserver 
+      user:
+        name: "{{ item.username }}"
+        password: " {{ user_password }}"
+        shell: /bin/bash
+        state: present
+      when: item.uid is match("2*")
+      with_items: "{{ users }}"
+
+
+    - name: create group wheel
+      group:
+        name: wheel
+        state: present
+
+
+    - name: append user to group created 
+      user:
+        name:
+          - vincent
+            alice
+            snady
+            patrick
+        groups: wheel
+        append: yes
+
+    - name: Set authorized key for user vincent  copying it from current user
+      authorized_key:
+        user: " {{ item.username }}"
+        state: present
+        key: "{{ lookup('file', '/home/charlie/.ssh/id_rsa.pub') }}"
+        path: /etc/ssh/authorized_keys/vincent
+        manage_dir: False
+
