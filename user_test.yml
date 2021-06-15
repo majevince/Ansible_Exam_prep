@@ -1,23 +1,23 @@
 ---
-- name: create user account  on webserver
+- name: "create users on webservers."
   hosts: webserver
   become: true
   vars_files:
-    -  secret.yml
-    -  vars/user_list.yml
+    - secret.yml
+    - vars/user_list.yml
   tasks:
-    - name: create users account on webserver 
+    - name: "create users on webservers."
       user:
         name: "{{ item.username }}"
-        password: " {{ user_password | password_hash('sha512') }}"
-        uid: "{{item.uid}}"
+        password: "{{ user_password | password_hash('sha512') }}"
+        uid: "{{ item.uid }}"
         shell: /bin/bash
         state: present
       when: item.uid is regex('^1')
       with_items:
         - "{{ users }}"
 
-    - name: "upload ssh-keys to database"
+    - name: "upload ssh-keys to webservers"
       authorized_key:
         user: "{{ item.username }}"
         key: "{{ lookup('file', '/home/automation/.ssh/id_rsa.pub') }}"
@@ -26,13 +26,12 @@
       with_items:
         - "{{ users }}"
 
-    - name: create group wheel
+    - name: "wheel group"
       group:
         name: wheel
         state: present
 
-
-    - name: append user to group created 
+    - name: "add all users to wheel group."
       user:
         name: "{{ item.username }}"
         groups: wheel
@@ -41,26 +40,24 @@
       with_items:
         - "{{ users }}"
 
-
-
-
-- name: create user account  on database
+- name: "create users on database."
   hosts: database
   become: true
   vars_files:
-    -  secret.yml
-    -  vars/user_list.yml
+    - secret.yml
+    - vars/user_list.yml
   tasks:
-    - name: create users account for databse
+    - name: "users on database"
       user:
         name: "{{ item.username }}"
-        password: " {{ user_password | password_hash('sha512') }}"
-        uid: "{{item.uid}}"
+        password: "{{ user_password | password_hash('sha512') }}"
+        uid: "{{ item.uid }}"
         shell: /bin/bash
         state: present
       when: item.uid is regex('^2')
       with_items:
         - "{{ users }}"
+
 
     - name: "upload ssh-keys to database"
       authorized_key:
@@ -71,13 +68,12 @@
       with_items:
         - "{{ users }}"
 
-    - name: create group wheel
+    - name: "wheel group"
       group:
         name: wheel
         state: present
 
-
-    - name: append user to group created 
+    - name: "add all users to wheel group."
       user:
         name: "{{ item.username }}"
         groups: wheel
@@ -85,4 +81,3 @@
       when: item.uid is regex('^2')
       with_items:
         - "{{ users }}"
-
