@@ -1,0 +1,35 @@
+---
+# tasks file for sample-apache
+- name: " Install Apache packages with dependencies"
+  dnf:
+    name:
+      - httpd
+      - php
+      - mod_ssl
+    state: present 
+- name: "start and Enable apache service"
+  systemd:
+    name: httpd
+    state: started
+    enabled: yes
+
+- name: " Ensure firewalld is enabled and started "
+  systemd:
+    name: firewalld
+    state: started
+    enabled: yes
+- name: " ensure firewalld ports are opened for apache"
+  firewalld:
+    port: "{{ item }}"  
+    permanent: yes
+    state: enabled
+    immediate: true
+  loop:
+    "{{ services }}"
+
+- name: " Create a jinga2 tamplate file in /var/www/html/index.html "
+  template:
+    src: templates/index.html.j2
+    dest: /var/www/html/index.html
+  notify: restart apache
+
