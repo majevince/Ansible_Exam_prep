@@ -1,0 +1,83 @@
+---
+# tasks file for sample-mysql
+- name: " create primary partition 800MB /dev/sdb/"
+  parted:
+    device: /dev/sdb
+    number: 1
+    state: present
+    part_type: primary
+    flags: [lvm]
+    part_end: 800MiB
+    state: present
+
+- name: " create lvm volume group vg_databse /dev/sdb1"
+  lvg:
+    vg: vg_database
+    pvs: /dev/sdb1
+    state: present
+
+- name: " create lvm lv_mysql size 512MB in vg_database"
+  lvol:
+    vg: vg_database
+    lv: lv_mysql
+    size: 512m
+    state: present 
+
+- name: " create a file system xfs on lv_mysgl"
+  filesystem:
+    fstype: xfs
+    dev: /dev/vg_database/lv_mysql
+
+- name: " create mount directory /mnt/mysql_backup"
+  file:
+    path: /mnt/mysql_backup
+    state: directory
+    recurse: yes
+    owner: root
+    group: root
+
+- name: " mount permanently lv_mysql /mnt/mysql_backup"
+  mount:
+    path: /mnt/mysql_backup
+    src: /dev/vg_database/lv_mysql
+    fstype: xfs
+    state: mounted
+
+- name: " install mysql- community-server"
+  dnf:
+    name: 
+      - mysql-server
+      - python3-PyMySQL
+    state: present
+
+- name: " ensure firewalld is started"
+  systemd:
+    name: firewalld
+    state: started
+    enabled: yes
+
+- name: " ensure firewall ports is open for mysql tcp 3306"
+  firewalld:
+    port: 3306/tcp
+    permanent: yes
+    state: enabled
+    immediate: yes
+
+- name: " ensure mysql service is started and running"
+  systemd:
+    name: mysqld
+    state: started
+    enabled: yes
+
+- name: "set mysql root password"
+  mysql_user:
+    name: root
+    password: "{{ database_password }}"
+    priv: '*.*:ALL'
+    state: present
+
+- name: " configure  from jinga2 template mysql-server"
+  template:
+    src: templates/my.cnf.j2
+    dest: /etc/my.cnf
+  notify: restart mysql-server

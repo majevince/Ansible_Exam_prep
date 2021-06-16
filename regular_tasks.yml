@@ -1,7 +1,7 @@
 - hosts: all
   become: true
   tasks:
-    - Name: "install cronie packages"
+    - name: "install cronie packages"
       dnf:
         name: cronie
         state: present
