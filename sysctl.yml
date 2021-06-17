@@ -1,0 +1,15 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: "set vm.swappiness to 10 for RAM > 2048"
+      sysctl:
+        name: vm.swappiness
+        value: '10'
+        state: present
+      when: "ansible_memtotal_mb > 2048"
+
+    - name: "for those less than 2048"
+      debug:
+        msg: System {{ inventory_hostname }} has {{ ansible_memtotal_mb }} memory
+      when: "ansible_memtotal_mb  < 2048"

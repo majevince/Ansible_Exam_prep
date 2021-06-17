@@ -1,0 +1,18 @@
+---
+- hosts: database
+  become: yes
+  pre_tasks:
+    - name: " create a content of file "
+      lineinfile:
+        path: /mnt/mysql_backups/database_list.txt
+        line: dev,test,qa,prod.
+        state: present
+        create: yes
+
+
+  tasks:
+    - name: "Compress directory  /mnt/mysql_backups/database_list.txt  into /mnt/mysql_backups/archive.gz."
+      archive:
+        path: /mnt/mysql_backups/database_list.txt
+        dest: /mnt/mysql_backups/archive.gz.
+        format: gz
