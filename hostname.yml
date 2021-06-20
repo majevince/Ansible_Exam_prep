@@ -1,0 +1,15 @@
+- hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+
+    - name: Get hostname
+      command: /bin/hostname
+      register: my_hostname
+
+    - debug: var=my_hostname
+
+    - name: "test ansible_node ip addresses"
+      debug:
+        msg: System {{ inventory_hostname }} has {{ ansible_memtotal_mb }} memory
+         

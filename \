@@ -1,0 +1,7 @@
+{% if inventory_hostname in groups['database']%}
+   {% for host in groups['all'] %}
+
+     {{ hostvars[host]['ansible_fqdn'] }}
+
+   {% endfor %}
+{% endif %}

@@ -1,0 +1,17 @@
+- hosts: all
+  become: true
+  gather_facts: yes
+  tasks:
+    - name: "server list play"
+      template:
+        src: templates/server_list.j2
+        dest: /etc/server_list.txt
+        owner: automation
+        group: automation
+        mode: '0600'
+
+    - name: "set selinx context on /etc/server_list.txt"
+      file:
+        path: '/etc/server_list.txt'
+        setype: net_conf_t
+        state: touch
